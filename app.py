@@ -1,10 +1,20 @@
-from flask import Flask, request, render_template, redirect
+from flask import Flask, request, render_template
 import sqlite3
+import os
+import shutil
 
 app = Flask(__name__)
 
+# Ruta segura para Render
+DB_ORIGEN = 'inventario.db'
+DB_PATH = os.path.join('/tmp', 'inventario.db')
+
+# Copiar la base si no existe en /tmp
+if not os.path.exists(DB_PATH):
+    shutil.copyfile(DB_ORIGEN, DB_PATH)
+
 def get_db_connection():
-    conn = sqlite3.connect('inventario.db')
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
