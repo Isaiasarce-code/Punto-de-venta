@@ -31,12 +31,19 @@ def guardar_inventario(df):
     ws.clear()
     ws.update([df.columns.values.tolist()] + df.values.tolist())
 
+
 def registrar_venta(codigo, descripcion, precio, cantidad):
     hoja = conectar_hoja()
     ventas = hoja.worksheet('Ventas')
     total = float(precio) * int(cantidad)
-    nueva_venta = [str(codigo), str(descripcion), float(precio), int(cantidad), total]
-    ventas.append_row(nueva_venta[0])
+    nueva_venta = [
+        str(codigo),
+        str(descripcion),
+        float(precio),
+        int(cantidad),
+        float(total)
+    ]
+    ventas.append_row(nueva_venta)
 
  
 # === RUTAS WEB ===
