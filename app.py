@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 # === CONFIGURACIÓN DE GOOGLE SHEETS ===
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-CREDS_FILE = 'credentials.json'  # Subir a Render como archivo secreto o variable
+CREDS_FILE = 'gleaming-abacus-436217-u3-533323be62ce.json'  # Subir a Render como archivo secreto o variable
 SHEET_NAME = 'CRUZVERDE'    # Nombre visible en Google Sheets
 
 def conectar_hoja():
