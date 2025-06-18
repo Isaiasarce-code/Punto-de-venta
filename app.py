@@ -136,7 +136,7 @@ def vender_producto():
         return redirect(url_for('buscar_producto'))
 
 
- @app.route('/vaciar_carrito', methods=['POST'])
+@app.route('/vaciar_carrito', methods=['POST'])
 def vaciar_carrito():
     session['carrito'] = []
     flash("🧹 Carrito vaciado correctamente.")
