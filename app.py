@@ -1,34 +1,42 @@
 from flask import Flask, request, render_template
 import pandas as pd
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 import os
 
 app = Flask(__name__)
 
-INVENTARIO_FILE = 'inventario.csv'
-VENTAS_FILE = 'ventas.csv'
+# === CONFIGURACIÓN DE GOOGLE SHEETS ===
+SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+CREDS_FILE = 'credentials.json'  # Subir a Render como archivo secreto o variable
+SHEET_NAME = 'CRUZVERDE'    # Nombre visible en Google Sheets
 
-# Cargar inventario desde CSV
+def conectar_hoja():
+    creds = ServiceAccountCredentials.from_json_keyfile_name(CREDS_FILE, SCOPE)
+    cliente = gspread.authorize(creds)
+    hoja = cliente.open(SHEET_NAME)
+    return hoja
+
+# === FUNCIONES DE INVENTARIO ===
 def cargar_inventario():
-    return pd.read_csv(INVENTARIO_FILE)
+    hoja = conectar_hoja()
+    datos = hoja.worksheet('Inventario').get_all_records()
+    return pd.DataFrame(datos)
 
-# Guardar inventario actualizado
 def guardar_inventario(df):
-    df.to_csv(INVENTARIO_FILE, index=False)
+    hoja = conectar_hoja()
+    ws = hoja.worksheet('Inventario')
+    ws.clear()
+    ws.update([df.columns.values.tolist()] + df.values.tolist())
 
-# Registrar venta
 def registrar_venta(codigo, descripcion, precio, cantidad):
-    venta = pd.DataFrame([{
-        'codigo': codigo,
-        'descripcion': descripcion,
-        'precio': precio,
-        'cantidad': cantidad,
-        'total': precio * cantidad
-    }])
-    if os.path.exists(VENTAS_FILE):
-        venta.to_csv(VENTAS_FILE, mode='a', header=False, index=False)
-    else:
-        venta.to_csv(VENTAS_FILE, index=False)
+    hoja = conectar_hoja()
+    ventas = hoja.worksheet('Ventas')
+    total = precio * cantidad
+    nueva_venta = [[codigo, descripcion, precio, cantidad, total]]
+    ventas.append_rows(nueva_venta)
 
+# === RUTAS WEB ===
 @app.route('/', methods=['GET', 'POST'])
 def buscar_producto():
     resultado = None
@@ -43,7 +51,7 @@ def buscar_producto():
             resultado = inventario[inventario['codigo'].astype(str).str.lower() == codigo]
         elif descripcion:
             resultado = inventario[inventario['descripcion'].str.lower().str.contains(descripcion)]
-        
+
         if resultado is not None and resultado.empty:
             error = "Producto no encontrado."
 
@@ -70,7 +78,6 @@ def vender_producto():
                 inventario.at[i, 'precio'],
                 cantidad_vendida
             )
-
             return f"Venta realizada: {cantidad_vendida} unidades de {inventario.at[i, 'descripcion']}."
         else:
             return "No hay suficiente inventario."
