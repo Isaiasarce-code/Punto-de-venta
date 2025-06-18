@@ -81,7 +81,7 @@
                 <td>{{ item.cantidad }}</td>
                 <td>{{ "%.2f"|format(subtotal) }}</td>
             </tr>
-            {% set total = total + subtotal %}
+        
         {% endfor %}
         <tr>
             <td colspan="3"><strong>Total</strong></td>
