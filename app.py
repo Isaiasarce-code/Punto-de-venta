@@ -58,11 +58,29 @@ def buscar_producto():
     resultado = None
     error = None
 
+    # Inicializar carrito si no existe
+    if 'carrito' not in session:
+        session['carrito'] = []
+
     if request.method == 'POST':
+        # Si viene desde el botón de "Agregar al carrito"
+        if 'agregar' in request.form:
+            producto = {
+                'codigo': request.form['codigo'],
+                'descripcion': request.form['descripcion'],
+                'precio': float(request.form['precio']),
+                'cantidad': int(request.form['cantidad'])
+            }
+            session['carrito'].append(producto)
+            session.modified = True
+            flash(f"✅ {producto['descripcion']} agregado al carrito.")
+            return redirect(url_for('buscar_producto'))
+
+        # Si es una búsqueda normal
         codigo = request.form.get('codigo', '').strip().lower()
         descripcion = request.form.get('descripcion', '').strip().lower()
-
         inventario = cargar_inventario()
+
         if codigo:
             resultado = inventario[inventario['codigo'].astype(str).str.lower() == codigo]
         elif descripcion:
@@ -71,7 +89,10 @@ def buscar_producto():
         if resultado is not None and resultado.empty:
             error = "Producto no encontrado."
 
-    return render_template('buscar.html', productos=resultado, error=error)
+    carrito = session.get('carrito', [])
+    return render_template('buscar.html', productos=resultado, error=error, carrito=carrito)
+
+
 @app.route('/vender', methods=['POST'])
 def vender_producto():
     try:
