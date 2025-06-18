@@ -71,7 +71,9 @@
         </tr>
         {% set total = 0 %}
         {% for item in carrito %}
-            {% set subtotal = item.precio * item.cantidad %}
+       
+            {% set subtotal = item.precio|float * item.cantidad|float %}
+
             <tr>
                 <td>{{ item.descripcion }}</td>
                 <td>{{ item.precio }}</td>
