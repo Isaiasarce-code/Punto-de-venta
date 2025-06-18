@@ -69,15 +69,17 @@
         <th>Subtotal</th>
     </tr>
     {% set total = 0 %}
+    
     {% for item in carrito %}
         {% set subtotal = item.precio|float * item.cantidad|float %}
+        {% set total = total + subtotal %}
         <tr>
             <td>{{ item.descripcion }}</td>
             <td>{{ item.precio }}</td>
             <td>{{ item.cantidad }}</td>
             <td>{{ "%.2f"|format(subtotal) }}</td>
         </tr>
-        {% set total = total + subtotal %}
+        
     {% endfor %}
     <tr>
         <td colspan="3"><strong>Total</strong></td>
@@ -87,6 +89,10 @@
 <form action="/vender" method="post">
     <button type="submit">Registrar venta</button>
 </form>
+    <form action="/vaciar_carrito" method="post" style="margin-top: 10px;">
+    <button type="submit" style="background-color: crimson; color: white;">Vaciar carrito</button>
+</form>
+
 {% endif %}
 
 
