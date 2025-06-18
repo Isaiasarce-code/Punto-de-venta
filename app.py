@@ -60,30 +60,36 @@ def buscar_producto():
     return render_template('buscar.html', productos=resultado, error=error)
 
 @app.route('/vender', methods=['POST'])
+@app.route('/vender', methods=['POST'])
 def vender_producto():
-    codigo = request.form['codigo']
-    cantidad_vendida = int(request.form['cantidad'])
+    try:
+        codigo = request.form['codigo']
+        cantidad_vendida = int(request.form['cantidad'])
 
-    inventario = cargar_inventario()
-    idx = inventario[inventario['codigo'].astype(str) == codigo].index
+        inventario = cargar_inventario()
+        idx = inventario[inventario['codigo'].astype(str) == codigo].index
 
-    if not idx.empty:
-        i = idx[0]
-        disponible = int(inventario.loc[i, 'cantidad'])
-        if disponible >= cantidad_vendida:
-            inventario.at[i, 'cantidad'] = disponible - cantidad_vendida
-            guardar_inventario(inventario)
+        if not idx.empty:
+            i = idx[0]
+            disponible = int(inventario.loc[i, 'cantidad'])
+            if disponible >= cantidad_vendida:
+                inventario.at[i, 'cantidad'] = disponible - cantidad_vendida
+                guardar_inventario(inventario)
 
-            registrar_venta(
-                inventario.at[i, 'codigo'],
-                inventario.at[i, 'descripcion'],
-                inventario.at[i, 'precio'],
-                cantidad_vendida
-            )
-            return f"Venta realizada: {cantidad_vendida} unidades de {inventario.at[i, 'descripcion']}."
-        else:
-            return "No hay suficiente inventario."
-    return "Producto no encontrado."
+                registrar_venta(
+                    inventario.at[i, 'codigo'],
+                    inventario.at[i, 'descripcion'],
+                    inventario.at[i, 'precio'],
+                    cantidad_vendida
+                )
+                return f"Venta realizada: {cantidad_vendida} unidades de {inventario.at[i, 'descripcion']}."
+            else:
+                return "No hay suficiente inventario."
+        return "Producto no encontrado."
+    
+    except Exception as e:
+        return f"💥 Error inesperado: {e}"
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
