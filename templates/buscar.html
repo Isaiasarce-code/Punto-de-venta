@@ -113,6 +113,38 @@ function calcularTotal() {
 <button type="submit">Registrar venta</button>
 </form>
 
+    {% if carrito %}
+<h3>Carrito actual:</h3>
+<table border="1">
+    <tr>
+        <th>Descripción</th>
+        <th>Precio</th>
+        <th>Cantidad</th>
+        <th>Subtotal</th>
+    </tr>
+    {% set total = 0 %}
+    {% for item in carrito %}
+        {% set subtotal = item.precio * item.cantidad %}
+        <tr>
+            <td>{{ item.descripcion }}</td>
+            <td>{{ item.precio }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>{{ "%.2f"|format(subtotal) }}</td>
+        </tr>
+        {% set total = total + subtotal %}
+    {% endfor %}
+    <tr>
+        <td colspan="3"><strong>Total</strong></td>
+        <td><strong>{{ "%.2f"|format(total) }}</strong></td>
+    </tr>
+</table>
+
+<form action="/vender" method="post">
+    <button type="submit">Registrar venta</button>
+</form>
+{% endif %}
+
+
 
 
     {% endif %}
