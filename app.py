@@ -12,7 +12,7 @@ CREDS_FILE = 'credentials.json'  # Subir a Render como archivo secreto o variabl
 SHEET_NAME = 'CRUZVERDE'    # Nombre visible en Google Sheets
 
 def conectar_hoja():
-    creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")  # lee la ruta segura del secret file
+    creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")  # esta línea es la nueva
     creds = ServiceAccountCredentials.from_json_keyfile_name(creds_path, SCOPE)
     cliente = gspread.authorize(creds)
     hoja = cliente.open(SHEET_NAME)
