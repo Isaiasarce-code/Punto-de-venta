@@ -75,34 +75,47 @@ def buscar_producto():
 @app.route('/vender', methods=['POST'])
 def vender_producto():
     try:
-        codigo = request.form['codigo']
-        cantidad_vendida = int(request.form['cantidad'])
+        productos_seleccionados = request.form.getlist('producto')
+        if not productos_seleccionados:
+            flash("⚠️ No seleccionaste ningún producto.")
+            return redirect(url_for('buscar_producto'))
 
         inventario = cargar_inventario()
-        idx = inventario[inventario['codigo'].astype(str) == codigo].index
+        hoja = conectar_hoja()
+        total_final = 0
 
-        if not idx.empty:
-            i = idx[0]
-            disponible = int(inventario.loc[i, 'cantidad'])
-            if disponible >= cantidad_vendida:
-                inventario.at[i, 'cantidad'] = disponible - cantidad_vendida
-                guardar_inventario(inventario)
+        for i in productos_seleccionados:
+            codigo = request.form.get(f'codigo_{i}')
+            descripcion = request.form.get(f'descripcion_{i}')
+            precio = float(request.form.get(f'precio_{i}'))
+            cantidad_vendida = int(request.form.get(f'cantidad_{i}'))
 
-                registrar_venta(
-                    inventario.at[i, 'codigo'],
-                    inventario.at[i, 'descripcion'],
-                    inventario.at[i, 'precio'],
-                    cantidad_vendida
-                )
+            idx = inventario[inventario['codigo'].astype(str) == codigo].index
+            if not idx.empty:
+                row = idx[0]
+                disponible = int(inventario.loc[row, 'cantidad'])
+                if cantidad_vendida <= disponible:
+                    inventario.at[row, 'cantidad'] = disponible - cantidad_vendida
 
-                flash(f"✅ Venta realizada: {cantidad_vendida} unidades de {inventario.at[i, 'descripcion']}")
-                return redirect(url_for('buscar_producto'))
+                    # Registrar venta
+                    total = precio * cantidad_vendida
+                    total_final += total
+                    ventas = hoja.worksheet('Ventas')
+                    ventas.append_row([
+                        str(codigo),
+                        str(descripcion),
+                        precio,
+                        cantidad_vendida,
+                        total
+                    ])
+                else:
+                    flash(f"❌ No hay suficiente stock para {descripcion}.")
             else:
-                flash("⚠️ No hay suficiente inventario.")
-                return redirect(url_for('buscar_producto'))
-        else:
-            flash("❌ Producto no encontrado.")
-            return redirect(url_for('buscar_producto'))
+                flash(f"❌ Producto no encontrado: {descripcion}")
+
+        guardar_inventario(inventario)
+        flash(f"✅ Venta registrada por un total de ${total_final:.2f}")
+        return redirect(url_for('buscar_producto'))
 
     except Exception as e:
         flash(f"💥 Error inesperado: {e}")
