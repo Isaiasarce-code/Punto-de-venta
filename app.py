@@ -34,10 +34,10 @@ def guardar_inventario(df):
 def registrar_venta(codigo, descripcion, precio, cantidad):
     hoja = conectar_hoja()
     ventas = hoja.worksheet('Ventas')
-    total = precio * cantidad
-    nueva_venta = [[codigo, descripcion, precio, cantidad, total]]
-    ventas.append_rows(nueva_venta)
-
+    total = float(precio) * int(cantidad)
+    nueva_venta = [str(codigo), str(descripcion), float(precio), int(cantidad), total]
+    ventas.append_row(nueva_venta)
+ 
 # === RUTAS WEB ===
 @app.route('/', methods=['GET', 'POST'])
 def buscar_producto():
