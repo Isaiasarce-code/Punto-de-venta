@@ -1,10 +1,15 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, url_for, flash
+
 import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
 
+# app = Flask(__name__)
+
 app = Flask(__name__)
+app.secret_key = 'alguna_clave_secreta_segura'
+
 
 # === CONFIGURACIÓN DE GOOGLE SHEETS ===
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -67,9 +72,7 @@ def buscar_producto():
             error = "Producto no encontrado."
 
     return render_template('buscar.html', productos=resultado, error=error)
-
 @app.route('/vender', methods=['POST'])
-
 def vender_producto():
     try:
         codigo = request.form['codigo']
@@ -91,13 +94,20 @@ def vender_producto():
                     inventario.at[i, 'precio'],
                     cantidad_vendida
                 )
-                return f"Venta realizada: {cantidad_vendida} unidades de {inventario.at[i, 'descripcion']}."
+
+                flash(f"✅ Venta realizada: {cantidad_vendida} unidades de {inventario.at[i, 'descripcion']}")
+                return redirect(url_for('buscar_producto'))
             else:
-                return "No hay suficiente inventario."
-        return "Producto no encontrado."
-    
+                flash("⚠️ No hay suficiente inventario.")
+                return redirect(url_for('buscar_producto'))
+        else:
+            flash("❌ Producto no encontrado.")
+            return redirect(url_for('buscar_producto'))
+
     except Exception as e:
-        return f"💥 Error inesperado: {e}"
+        flash(f"💥 Error inesperado: {e}")
+        return redirect(url_for('buscar_producto'))
+
 
 
 if __name__ == '__main__':
