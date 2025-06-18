@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head><title>Punto de Venta</title></head>
+<body>
+  <h2>Buscar producto</h2>
+  <form method="post">
+    <input name="codigo" placeholder="Código de barras">
+    <input name="descripcion" placeholder="Descripción del producto">
+    <button type="submit">Buscar</button>
+  </form>
+
+  {% if error %}
+    <p style="color:red;">{{ error }}</p>
+  {% endif %}
+
+  {% if productos is not none %}
+    {% for producto in productos.itertuples() %}
+      <h3>{{ producto.descripcion }}</h3>
+      <p><strong>Precio:</strong> ${{ producto.precio }}</p>
+      <p><strong>En stock:</strong> {{ producto.cantidad }}</p>
+      <form method="post" action="/vender">
+        <input type="hidden" name="codigo" value="{{ producto.codigo }}">
+        <input type="number" name="cantidad" min="1" max="{{ producto.cantidad }}" required>
+        <button type="submit">Vender</button>
+      </form>
+      <hr>
+    {% endfor %}
+  {% endif %}
+</body>
+</html>
