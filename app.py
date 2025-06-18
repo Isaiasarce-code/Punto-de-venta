@@ -36,7 +36,8 @@ def registrar_venta(codigo, descripcion, precio, cantidad):
     ventas = hoja.worksheet('Ventas')
     total = float(precio) * int(cantidad)
     nueva_venta = [str(codigo), str(descripcion), float(precio), int(cantidad), total]
-    ventas.append_row(nueva_venta)
+    ventas.append_row(nueva_venta[0])
+
  
 # === RUTAS WEB ===
 @app.route('/', methods=['GET', 'POST'])
