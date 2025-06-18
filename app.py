@@ -12,11 +12,12 @@ CREDS_FILE = 'gleaming-abacus-436217-u3-533323be62ce.json'  # Subir a Render com
 SHEET_NAME = 'CRUZVERDE'    # Nombre visible en Google Sheets
 
 def conectar_hoja():
- creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")  # esta línea es la nueva
+    creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
     creds = ServiceAccountCredentials.from_json_keyfile_name(creds_path, SCOPE)
     cliente = gspread.authorize(creds)
     hoja = cliente.open(SHEET_NAME)
     return hoja
+
 
 
 # === FUNCIONES DE INVENTARIO ===
@@ -68,7 +69,7 @@ def buscar_producto():
     return render_template('buscar.html', productos=resultado, error=error)
 
 @app.route('/vender', methods=['POST'])
-@app.route('/vender', methods=['POST'])
+
 def vender_producto():
     try:
         codigo = request.form['codigo']
