@@ -136,6 +136,13 @@ def vender_producto():
         return redirect(url_for('buscar_producto'))
 
 
+ @app.route('/vaciar_carrito', methods=['POST'])
+def vaciar_carrito():
+    session['carrito'] = []
+    flash("🧹 Carrito vaciado correctamente.")
+    return redirect(url_for('buscar_producto'))
+
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
