@@ -1,6 +1,11 @@
-services:
+    services:
   - type: web
     name: punto-de-venta
     env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python app.py"
+    buildCommand: ""
+    startCommand: python app.py
+    plan: free
+    envVars:
+      - key: FLASK_ENV
+        value: production
+
