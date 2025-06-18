@@ -69,20 +69,18 @@
             <th>Cantidad</th>
             <th>Subtotal</th>
         </tr>
-        {% set total = 0 %}
-        {% for item in carrito %}
-       
-            {% set subtotal = item.precio|float * item.cantidad|float %}
-            {% set total = total + subtotal %}
+{% set total = 0 %}
+{% for item in carrito %}
+    {% set subtotal = item.precio|float * item.cantidad|float %}
+    <tr>
+        <td>{{ item.descripcion }}</td>
+        <td>{{ item.precio }}</td>
+        <td>{{ item.cantidad }}</td>
+        <td>{{ "%.2f"|format(subtotal) }}</td>
+    </tr>
+    {% set total = total + subtotal %}
+{% endfor %}
 
-            <tr>
-                <td>{{ item.descripcion }}</td>
-                <td>{{ item.precio }}</td>
-                <td>{{ item.cantidad }}</td>
-                <td>{{ "%.2f"|format(subtotal) }}</td>
-            </tr>
-        
-        {% endfor %}
         <tr>
             <td colspan="3"><strong>Total</strong></td>
             <td><strong>{{ "%.2f"|format(total) }}</strong></td>
