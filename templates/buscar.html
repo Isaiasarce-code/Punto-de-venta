@@ -10,6 +10,43 @@ function actualizarTotal(precio, id) {
     document.getElementById(`total${id}`).innerText = total.toFixed(2);
 }
 </script>
+<script>
+let totalVenta = 0;
+
+function toggleFila(id) {
+    const checkbox = document.querySelector(`input[value="${id}"]`);
+    const cantidadInput = document.getElementById(`cantidad_${id}`);
+    const precio = parseFloat(document.getElementsByName(`precio_${id}`)[0].value);
+
+    if (checkbox.checked) {
+        cantidadInput.disabled = false;
+        actualizarSubtotal(id, precio);
+    } else {
+        cantidadInput.disabled = true;
+        cantidadInput.value = 1;
+        document.getElementById(`subtotal_${id}`).innerText = "0.00";
+        calcularTotal();
+    }
+}
+
+function actualizarSubtotal(id, precio) {
+    const cantidad = parseFloat(document.getElementById(`cantidad_${id}`).value || 0);
+    const subtotal = cantidad * precio;
+    document.getElementById(`subtotal_${id}`).innerText = subtotal.toFixed(2);
+    calcularTotal();
+}
+
+function calcularTotal() {
+    let total = 0;
+    document.querySelectorAll("input[type='checkbox']:checked").forEach(cb => {
+        const id = cb.value;
+        const cantidad = parseFloat(document.getElementById(`cantidad_${id}`).value || 0);
+        const precio = parseFloat(document.getElementsByName(`precio_${id}`)[0].value);
+        total += cantidad * precio;
+    });
+    document.getElementById("total").innerText = total.toFixed(2);
+}
+</script>
 
 <body>
     {% with messages = get_flashed_messages() %}
@@ -40,39 +77,43 @@ function actualizarTotal(precio, id) {
 
     {% if productos is not none and not productos.empty %}
         <h3>Resultados:</h3>
-       <table border="1">
+<form action="/vender" method="post" id="formVenta">
+<table border="1">
     <tr>
+        <th>✔</th>
         <th>Código</th>
         <th>Descripción</th>
         <th>Precio</th>
         <th>Cantidad</th>
-        <th>Total</th>
-        <th>Vender</th>
+        <th>Subtotal</th>
     </tr>
     {% for i, prod in productos.iterrows() %}
     <tr>
-        <form action="/vender" method="post">
-            <td>{{ prod['codigo'] }}</td>
-            <td>{{ prod['descripcion'] }}</td>
-            <td id="precio{{ i }}">{{ prod['precio'] }}</td>
-            <td>
-                <input
-                    type="number"
-                    name="cantidad"
-                    id="cantidad{{ i }}"
-                    min="1"
-                    value="1"
-                    oninput="actualizarTotal({{ prod['precio'] }}, '{{ i }}')"
-                    required
-                >
-                <input type="hidden" name="codigo" value="{{ prod['codigo'] }}">
-            </td>
-            <td><span id="total{{ i }}">{{ "%.2f"|format(prod['precio']) }}</span></td>
-            <td><button type="submit">Vender</button></td>
-        </form>
+        <td>
+            <input type="checkbox" name="producto" value="{{ i }}" onchange="toggleFila('{{ i }}')">
+        </td>
+        <td>{{ prod['codigo'] }}</td>
+        <td>{{ prod['descripcion'] }}</td>
+        <td>{{ prod['precio'] }}</td>
+        <td>
+            <input type="number" name="cantidad_{{ i }}" id="cantidad_{{ i }}" value="1" min="1"
+                   onchange="actualizarSubtotal('{{ i }}', {{ prod['precio'] }})"
+                   disabled required>
+        </td>
+        <td><span id="subtotal_{{ i }}">{{ "%.2f"|format(prod['precio']) }}</span></td>
+        <!-- Campos ocultos para enviar info -->
+        <input type="hidden" name="codigo_{{ i }}" value="{{ prod['codigo'] }}">
+        <input type="hidden" name="descripcion_{{ i }}" value="{{ prod['descripcion'] }}">
+        <input type="hidden" name="precio_{{ i }}" value="{{ prod['precio'] }}">
     </tr>
     {% endfor %}
 </table>
+
+<h3>Total: $<span id="total">0.00</span></h3>
+<button type="submit">Registrar venta</button>
+</form>
+
+
 
     {% endif %}
 </body>
