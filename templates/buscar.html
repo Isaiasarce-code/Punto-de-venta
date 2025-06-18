@@ -1,30 +1,53 @@
 <!doctype html>
 <html>
-<head><title>Punto de Venta</title></head>
+<head>
+    <title>Buscar producto</title>
+</head>
 <body>
-  <h2>Buscar producto</h2>
-  <form method="post">
-    <input name="codigo" placeholder="Código de barras">
-    <input name="descripcion" placeholder="Descripción del producto">
-    <button type="submit">Buscar</button>
-  </form>
+    <h2>Buscar producto</h2>
 
-  {% if error %}
-    <p style="color:red;">{{ error }}</p>
-  {% endif %}
+    <form method="post">
+        <label>Código de barras:</label>
+        <input type="text" name="codigo">
+        <br>
+        <label>Descripción del producto:</label>
+        <input type="text" name="descripcion">
+        <br>
+        <button type="submit">Buscar</button>
+    </form>
 
-  {% if productos is not none %}
-    {% for producto in productos.itertuples() %}
-      <h3>{{ producto.descripcion }}</h3>
-      <p><strong>Precio:</strong> ${{ producto.precio }}</p>
-      <p><strong>En stock:</strong> {{ producto.cantidad }}</p>
-      <form method="post" action="/vender">
-        <input type="hidden" name="codigo" value="{{ producto.codigo }}">
-        <input type="number" name="cantidad" min="1" max="{{ producto.cantidad }}" required>
-        <button type="submit">Vender</button>
-      </form>
-      <hr>
-    {% endfor %}
-  {% endif %}
+    {% if error %}
+        <p style="color:red">{{ error }}</p>
+    {% endif %}
+
+    {% if productos is not none and not productos.empty %}
+        <h3>Resultados:</h3>
+        <table border="1">
+            <tr>
+                <th>Código</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>En stock</th>
+                <th>Cantidad</th>
+                <th>Vender</th>
+            </tr>
+            {% for _, prod in productos.iterrows() %}
+            <tr>
+                <form action="/vender" method="post">
+                    <td>{{ prod['codigo'] }}</td>
+                    <td>{{ prod['descripcion'] }}</td>
+                    <td>{{ prod['precio'] }}</td>
+                    <td>{{ prod['cantidad'] }}</td>
+                    <td>
+                        <input type="hidden" name="codigo" value="{{ prod['codigo'] }}">
+                        <input type="number" name="cantidad" min="1" max="{{ prod['cantidad'] }}" required>
+                    </td>
+                    <td><button type="submit">Vender</button></td>
+                </form>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
 </body>
 </html>
+
