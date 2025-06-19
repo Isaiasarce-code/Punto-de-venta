@@ -143,6 +143,17 @@ def vaciar_carrito():
     return redirect(url_for('buscar_producto'))
 
 
+@app.route('/eliminar_item', methods=['POST'])
+def eliminar_item():
+    idx = int(request.form['index'])
+    carrito = session.get('carrito', [])
+    if 0 <= idx < len(carrito):
+        del carrito[idx]
+        session['carrito'] = carrito
+        flash("🗑️ Producto eliminado del carrito.")
+    return redirect(url_for('buscar_producto'))
+
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
