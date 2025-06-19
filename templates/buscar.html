@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -8,7 +8,6 @@
 <body class="bg-light">
 
 <div class="container py-4">
-
     <h1 class="mb-4 text-center">🛍 Punto de Venta</h1>
 
     {% with messages = get_flashed_messages() %}
@@ -26,12 +25,12 @@
             <h5 class="card-title">🔍 Buscar producto</h5>
             <form method="post" class="row g-3">
                 <div class="col-md-6">
-                    <label class="form-label">Código de barras:</label>
-                    <input type="text" name="codigo" class="form-control">
+                    <label for="codigo" class="form-label">Código de barras:</label>
+                    <input type="text" id="codigo" name="codigo" class="form-control">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Descripción:</label>
-                    <input type="text" name="descripcion" class="form-control">
+                    <label for="descripcion" class="form-label">Descripción:</label>
+                    <input type="text" id="descripcion" name="descripcion" class="form-control">
                 </div>
                 <div class="col-12 text-end">
                     <button type="submit" class="btn btn-primary">Buscar</button>
@@ -60,13 +59,13 @@
                     </thead>
                     <tbody>
                     {% for _, prod in productos.iterrows() %}
-                        <tr>
-                            <form method="post">
+                        <form method="post">
+                            <tr>
                                 <td>{{ prod['codigo'] }}</td>
                                 <td>{{ prod['descripcion'] }}</td>
                                 <td>${{ prod['precio'] }}</td>
                                 <td>
-                                    <input type="number" name="cantidad" min="1" value="1" required class="form-control form-control-sm">
+                                    <input type="number" name="cantidad" min="1" step="1" value="1" required class="form-control form-control-sm">
                                     <input type="hidden" name="codigo" value="{{ prod['codigo'] }}">
                                     <input type="hidden" name="descripcion" value="{{ prod['descripcion'] }}">
                                     <input type="hidden" name="precio" value="{{ prod['precio'] }}">
@@ -74,8 +73,8 @@
                                 <td>
                                     <button type="submit" name="agregar" value="1" class="btn btn-success btn-sm">Agregar</button>
                                 </td>
-                            </form>
-                        </tr>
+                            </tr>
+                        </form>
                     {% endfor %}
                     </tbody>
                 </table>
@@ -84,69 +83,62 @@
     </div>
     {% endif %}
 
-<!-- ... lo de arriba permanece igual ... -->
-
-{% if carrito %}
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">🛒 Carrito actual</h5>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle">
-                <thead class="table-secondary">
-                    <tr>
-                        <th>Descripción</th>
-                        <th>Precio</th>
-                        <th>Cantidad</th>
-                        <th>Subtotal</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% set total = 0 %}
-                    {% for item in carrito %}
-                        {% set precio = item.precio|float %}
-                        {% set cantidad = item.cantidad|int %}
-                        {% set subtotal = precio * cantidad %}
-                        {% set total = total + subtotal %}
+    {% if carrito %}
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">🛒 Carrito actual</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-secondary">
                         <tr>
-                            <td>{{ item.descripcion }}</td>
-                            <td>${{ "%.2f"|format(precio) }}</td>
-                            <td>{{ cantidad }}</td>
-                            <td>${{ "%.2f"|format(subtotal) }}</td>
-                            <td>
-                                <form action="/eliminar_item" method="post">
-                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
-                                </form>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Subtotal</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set total = 0 %}
+                        {% for item in carrito %}
+                            {% set precio = item.precio|float %}
+                            {% set cantidad = item.cantidad|int %}
+                            {% set subtotal = precio * cantidad %}
+                            {% set total = total + subtotal %}
+                            <tr>
+                                <td>{{ item.descripcion }}</td>
+                                <td>${{ "%.2f"|format(precio) }}</td>
+                                <td>{{ cantidad }}</td>
+                                <td>${{ "%.2f"|format(subtotal) }}</td>
+                                <td>
+                                    <form action="/eliminar_item" method="post">
+                                        <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        <tr class="fw-bold text-end">
+                            <td colspan="3">Total</td>
+                            <td colspan="2">
+                                <span class="badge bg-primary fs-6">${{ "%.2f"|format(total) }}</span>
                             </td>
                         </tr>
-                    {% endfor %}
-                    <tr class="fw-bold text-end">
-                        <td colspan="3">Total</td>
-                        <td colspan="2">
-                         <span class="badge bg-primary fs-6">${{ "%.2f"|format(total) }}</span>
-                        </td>
-                    </tr>
+                    </tbody>
+                </table>
+            </div>
 
-                </tbody>
-            </table>
+            <form action="/vender" method="post" class="d-inline">
+                <button type="submit" class="btn btn-primary">Registrar venta</button>
+            </form>
+
+            <form action="/vaciar_carrito" method="post" class="d-inline ms-2">
+                <button type="submit" class="btn btn-danger">Vaciar carrito</button>
+            </form>
         </div>
-
-        <form action="/vender" method="post" class="d-inline">
-            <button type="submit" class="btn btn-primary">Registrar venta</button>
-        </form>
-
-        <form action="/vaciar_carrito" method="post" class="d-inline ms-2">
-            <button type="submit" class="btn btn-danger">Vaciar carrito</button>
-        </form>
     </div>
-</div>
-{% endif %}
-    
-
-
+    {% endif %}
 
 </div>
-
 </body>
 </html>
