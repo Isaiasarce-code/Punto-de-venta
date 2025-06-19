@@ -61,6 +61,20 @@ def buscar_producto():
     # Inicializar carrito si no existe
     if 'carrito' not in session:
         session['carrito'] = []
+        carrito = session.get('carrito', [])
+
+# Calcular total desde Python
+total = 0
+for item in carrito:
+    try:
+        precio = float(item['precio'])
+        cantidad = int(item['cantidad'])
+        total += precio * cantidad
+    except:
+        continue
+
+return render_template('buscar.html', productos=resultado, error=error, carrito=carrito, total=total)
+
 
     if request.method == 'POST':
         # Si viene desde el botón de "Agregar al carrito"
