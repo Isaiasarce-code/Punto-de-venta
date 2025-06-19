@@ -64,6 +64,8 @@ def buscar_producto():
         carrito = session.get('carrito', [])
 
 # Calcular total desde Python
+
+    if request.method == 'POST':
 total = 0
 for item in carrito:
     try:
@@ -76,7 +78,7 @@ for item in carrito:
 return render_template('buscar.html', productos=resultado, error=error, carrito=carrito, total=total)
 
 
-    if request.method == 'POST':
+        
         # Si viene desde el botón de "Agregar al carrito"
         if 'agregar' in request.form:
             producto = {
