@@ -84,48 +84,62 @@
     </div>
     {% endif %}
 
-    {% if carrito %}
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">🛒 Carrito actual</h5>
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle">
-                    <thead class="table-secondary">
+<!-- ... lo de arriba permanece igual ... -->
+
+{% if carrito %}
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">🛒 Carrito actual</h5>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-secondary">
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total = 0 %}
+                    {% for item in carrito %}
+                        {% set precio = item.precio|float %}
+                        {% set cantidad = item.cantidad|int %}
+                        {% set subtotal = precio * cantidad %}
+                        {% set total = total + subtotal %}
                         <tr>
-                            <th>Descripción</th>
-                            <th>Precio</th>
-                            <th>Cantidad</th>
-                            <th>Subtotal</th>
+                            <td>{{ item.descripcion }}</td>
+                            <td>${{ "%.2f"|format(precio) }}</td>
+                            <td>{{ cantidad }}</td>
+                            <td>${{ "%.2f"|format(subtotal) }}</td>
+                            <td>
+                                <form action="/eliminar_item" method="post">
+                                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
+                                </form>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {% set total = 0 %}
-                        {% for item in carrito %}
-                            {% set subtotal = item.precio|float * item.cantidad|float %}
-                            {% set total = total + subtotal %}
-                            <tr>
-                                <td>{{ item.descripcion }}</td>
-                                <td>${{ item.precio }}</td>
-                                <td>{{ item.cantidad }}</td>
-                                <td>${{ "%.2f"|format(subtotal) }}</td>
-                            </tr>
-                        {% endfor %}
-                        <tr class="fw-bold text-end">
-                            <td colspan="3">Total</td>
-                            <td>${{ "%.2f"|format(total) }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <form action="/vender" method="post" class="d-inline">
-                <button type="submit" class="btn btn-primary">Registrar venta</button>
-            </form>
-            <form action="/vaciar_carrito" method="post" class="d-inline ms-2">
-                <button type="submit" class="btn btn-danger">Vaciar carrito</button>
-            </form>
+                    {% endfor %}
+                    <tr class="fw-bold text-end">
+                        <td colspan="3">Total</td>
+                        <td colspan="2">${{ "%.2f"|format(total) }}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
+
+        <form action="/vender" method="post" class="d-inline">
+            <button type="submit" class="btn btn-primary">Registrar venta</button>
+        </form>
+
+        <form action="/vaciar_carrito" method="post" class="d-inline ms-2">
+            <button type="submit" class="btn btn-danger">Vaciar carrito</button>
+        </form>
     </div>
-    {% endif %}
+</div>
+{% endif %}
+
 
 </div>
 
