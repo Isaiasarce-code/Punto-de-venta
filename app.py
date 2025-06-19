@@ -59,22 +59,35 @@ def buscar_producto():
     error = None
 
     # Inicializar carrito si no existe
-    if 'carrito' not in session:
-        session['carrito'] = []
+  if 'agregar' in request.form:
+    codigo = request.form['codigo']
+    descripcion = request.form['descripcion']
+    precio = float(request.form['precio'])
+    cantidad = int(request.form['cantidad'])
 
-    if request.method == 'POST':
-        # Si viene desde el botón de "Agregar al carrito"
-        if 'agregar' in request.form:
+    inventario = cargar_inventario()
+    item = inventario[inventario['codigo'].astype(str) == str(codigo)]
+
+    if not item.empty:
+        disponible = int(item.iloc[0]['cantidad'])
+
+        if cantidad <= disponible:
             producto = {
-                'codigo': request.form['codigo'],
-                'descripcion': request.form['descripcion'],
-                'precio': float(request.form['precio']),
-                'cantidad': int(request.form['cantidad'])
+                'codigo': codigo,
+                'descripcion': descripcion,
+                'precio': precio,
+                'cantidad': cantidad
             }
             session['carrito'].append(producto)
             session.modified = True
-            flash(f"✅ {producto['descripcion']} agregado al carrito.")
-            return redirect(url_for('buscar_producto'))
+            flash(f"✅ {descripcion} agregado al carrito.")
+        else:
+            flash(f"❌ Solo hay {disponible} unidades disponibles de {descripcion}.")
+    else:
+        flash("❌ Producto no encontrado en el inventario.")
+
+    return redirect(url_for('buscar_producto'))
+
 
         # Si es una búsqueda normal
         codigo = request.form.get('codigo', '').strip().lower()
