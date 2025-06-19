@@ -64,15 +64,24 @@
                                 <td>{{ prod['codigo'] }}</td>
                                 <td>{{ prod['descripcion'] }}</td>
                                 <td>${{ prod['precio'] }}</td>
+
+
+
+
                                 <td>
-                                    <input type="number" name="cantidad" min="1" step="1" value="1" required class="form-control form-control-sm">
+                                    <input type="number" name="cantidad" min="1" max="{{ prod['cantidad'] }}" step="1" value="1" required class="form-control form-control-sm">
                                     <input type="hidden" name="codigo" value="{{ prod['codigo'] }}">
                                     <input type="hidden" name="descripcion" value="{{ prod['descripcion'] }}">
                                     <input type="hidden" name="precio" value="{{ prod['precio'] }}">
                                 </td>
                                 <td>
-                                    <button type="submit" name="agregar" value="1" class="btn btn-success btn-sm">Agregar</button>
+                                    {% if prod['cantidad'] > 0 %}
+                                        <button type="submit" name="agregar" value="1" class="btn btn-success btn-sm">Agregar</button>
+                                    {% else %}
+                                        <span class="text-danger">Sin stock</span>
+                                    {% endif %}
                                 </td>
+
                             </tr>
                         </form>
                     {% endfor %}
