@@ -61,24 +61,8 @@ def buscar_producto():
     # Inicializar carrito si no existe
     if 'carrito' not in session:
         session['carrito'] = []
-        carrito = session.get('carrito', [])
-
-# Calcular total desde Python
 
     if request.method == 'POST':
-total = 0
-for item in carrito:
-    try:
-        precio = float(item['precio'])
-        cantidad = int(item['cantidad'])
-        total += precio * cantidad
-    except:
-        continue
-
-return render_template('buscar.html', productos=resultado, error=error, carrito=carrito, total=total)
-
-
-        
         # Si viene desde el botón de "Agregar al carrito"
         if 'agregar' in request.form:
             producto = {
@@ -106,7 +90,20 @@ return render_template('buscar.html', productos=resultado, error=error, carrito=
             error = "Producto no encontrado."
 
     carrito = session.get('carrito', [])
-    return render_template('buscar.html', productos=resultado, error=error, carrito=carrito)
+
+    # ✅ Calcular total correctamente
+    total = 0
+    for item in carrito:
+        try:
+            precio = float(item['precio'])
+            cantidad = int(item['cantidad'])
+            total += precio * cantidad
+        except:
+            continue
+
+    return render_template('buscar.html', productos=resultado, error=error, carrito=carrito, total=total)
+
+
 
 @app.route('/vender', methods=['POST'])
 def vender_producto():
