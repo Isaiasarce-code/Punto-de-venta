@@ -123,8 +123,11 @@
                     {% endfor %}
                     <tr class="fw-bold text-end">
                         <td colspan="3">Total</td>
-                        <td colspan="2">${{ "%.2f"|format(total) }}</td>
+                        <td colspan="2">
+                         <span class="badge bg-primary fs-6">${{ "%.2f"|format(total) }}</span>
+                        </td>
                     </tr>
+
                 </tbody>
             </table>
         </div>
@@ -139,6 +142,8 @@
     </div>
 </div>
 {% endif %}
+    
+
 
 
 </div>
