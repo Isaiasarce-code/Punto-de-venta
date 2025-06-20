@@ -113,10 +113,14 @@
                             <td>
                                 <form action="/modificar_cantidad" method="post" class="d-inline auto-submit-form">
                                     <input type="hidden" name="index" value="{{ loop.index0 }}">
-                                    <input type="number" name="nueva_cantidad" value="{{ cantidad }}" min="1"
+                                    <input type="number" name="nueva_cantidad"
+                                           value="{{ cantidad }}"
+                                           min="1"
+                                           max="{{ item.maximo if item.maximo else 99999 }}"
                                            class="form-control form-control-sm auto-submit-field"
                                            style="width: 90px;" required>
                                 </form>
+
                             </td>
                             <td>${{ "%.2f"|format(subtotal) }}</td>
                             <td>
