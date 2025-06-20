@@ -4,6 +4,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 import os
+import pytz
 
 app = Flask(__name__)
 app.secret_key = 'alguna_clave_secreta_segura'
@@ -32,13 +33,19 @@ def guardar_inventario(df):
     ws.clear()
     ws.update([df.columns.values.tolist()] + df.values.tolist())
 
+
 def registrar_venta(codigo, descripcion, precio, cantidad):
     hoja = conectar_hoja()
     ventas = hoja.worksheet('Ventas')
     total = float(precio) * int(cantidad)
-    fecha = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    # Zona horaria de Ciudad de México
+    tz_mexico = pytz.timezone('America/Mexico_City')
+    fecha = datetime.now(tz_mexico).strftime('%Y-%m-%d %H:%M:%S')
+
     nueva_venta = [str(codigo), str(descripcion), float(precio), int(cantidad), float(total), fecha]
     ventas.append_row(nueva_venta)
+
 
 # === RUTA PRINCIPAL ===
 @app.route('/', methods=['GET', 'POST'])
