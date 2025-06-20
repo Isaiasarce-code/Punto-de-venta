@@ -103,7 +103,11 @@
                     <tr>
                         <th>Descripción</th>
                         <th>Precio</th>
-                        <th>Cantidad</th>
+                        <form action="/modificar_cantidad" method="post" class="d-inline">
+                            <input type="hidden" name="index" value="{{ loop.index0 }}">
+                            <input type="number" name="nueva_cantidad" value="{{ cantidad }}" min="1" class="form-control form-control-sm d-inline w-auto me-1" style="width: 80px;" required>
+                            <button type="submit" class="btn btn-outline-primary btn-sm">Actualizar</button>
+                        </form>
                         <th>Subtotal</th>
                         <th>Acción</th>
                     </tr>
