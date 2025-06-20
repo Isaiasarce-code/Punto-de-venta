@@ -157,17 +157,30 @@ def modificar_cantidad():
         idx = int(request.form['index'])
         nueva_cantidad = int(request.form['nueva_cantidad'])
         carrito = session.get('carrito', [])
+        inventario = cargar_inventario()
 
         if 0 <= idx < len(carrito):
-            carrito[idx]['cantidad'] = nueva_cantidad
-            session['carrito'] = carrito
-            flash("🔁 Cantidad actualizada correctamente.")
+            producto = carrito[idx]
+            codigo = producto['codigo']
+            stock = inventario[inventario['codigo'].astype(str) == str(codigo)]
+
+            if not stock.empty:
+                disponible = int(stock.iloc[0]['cantidad'])
+                if nueva_cantidad <= disponible:
+                    carrito[idx]['cantidad'] = nueva_cantidad
+                    session['carrito'] = carrito
+                    flash("🔁 Cantidad actualizada correctamente.")
+                else:
+                    flash(f"❌ No puedes solicitar más de {disponible} unidades.")
+            else:
+                flash("❌ Producto no encontrado en el inventario.")
         else:
             flash("❌ Índice fuera de rango.")
     except Exception as e:
         flash(f"💥 Error al actualizar: {e}")
 
     return redirect(url_for('buscar_producto'))
+
 
 
 if __name__ == '__main__':
