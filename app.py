@@ -151,6 +151,25 @@ def eliminar_item():
         flash("🗑️ Producto eliminado del carrito.")
     return redirect(url_for('buscar_producto'))
 
+@app.route('/modificar_cantidad', methods=['POST'])
+def modificar_cantidad():
+    try:
+        idx = int(request.form['index'])
+        nueva_cantidad = int(request.form['nueva_cantidad'])
+        carrito = session.get('carrito', [])
+
+        if 0 <= idx < len(carrito):
+            carrito[idx]['cantidad'] = nueva_cantidad
+            session['carrito'] = carrito
+            flash("🔁 Cantidad actualizada correctamente.")
+        else:
+            flash("❌ Índice fuera de rango.")
+    except Exception as e:
+        flash(f"💥 Error al actualizar: {e}")
+
+    return redirect(url_for('buscar_producto'))
+
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
