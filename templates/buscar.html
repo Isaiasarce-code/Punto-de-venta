@@ -111,10 +111,11 @@
                             <td>{{ item.descripcion }}</td>
                             <td>${{ "%.2f"|format(precio) }}</td>
                             <td>
-                                <form action="/modificar_cantidad" method="post" class="d-flex align-items-center">
+                                <form action="/modificar_cantidad" method="post" class="d-inline auto-submit-form">
                                     <input type="hidden" name="index" value="{{ loop.index0 }}">
-                                    <input type="number" name="nueva_cantidad" value="{{ cantidad }}" min="1" class="form-control form-control-sm me-2" style="width: 90px;" required>
-                                    <button type="submit" class="btn btn-outline-primary btn-sm">Actualizar</button>
+                                    <input type="number" name="nueva_cantidad" value="{{ cantidad }}" min="1"
+                                           class="form-control form-control-sm auto-submit-field"
+                                           style="width: 90px;" required>
                                 </form>
                             </td>
                             <td>${{ "%.2f"|format(subtotal) }}</td>
@@ -147,6 +148,15 @@
     </div>
     {% endif %}
 </div>
+
+<!-- 🚀 Script para envío automático -->
+<script>
+    document.querySelectorAll('.auto-submit-field').forEach(function(input) {
+        input.addEventListener('change', function() {
+            this.closest('form').submit();
+        });
+    });
+</script>
 
 </body>
 </html>
