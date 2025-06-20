@@ -3,6 +3,7 @@ import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'alguna_clave_secreta_segura'
@@ -37,7 +38,8 @@ def registrar_venta(codigo, descripcion, precio, cantidad):
     hoja = conectar_hoja()
     ventas = hoja.worksheet('Ventas')
     total = float(precio) * int(cantidad)
-    nueva_venta = [str(codigo), str(descripcion), float(precio), int(cantidad), float(total)]
+    fecha = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # formato legible
+    nueva_venta = [str(codigo), str(descripcion), float(precio), int(cantidad), float(total), fecha]
     ventas.append_row(nueva_venta)
 
 
