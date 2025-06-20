@@ -1,11 +1,8 @@
 from flask import Flask, request, render_template, redirect, url_for, flash, session
-
 import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
-
-# app = Flask(__name__)
 
 app = Flask(__name__)
 app.secret_key = 'alguna_clave_secreta_segura'
@@ -14,7 +11,7 @@ app.secret_key = 'alguna_clave_secreta_segura'
 # === CONFIGURACIÓN DE GOOGLE SHEETS ===
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 CREDS_FILE = 'gleaming-abacus-436217-u3-533323be62ce.json'  # Subir a Render como archivo secreto o variable
-SHEET_NAME = 'CRUZVERDE'    # Nombre visible en Google Sheets
+SHEET_NAME = 'CRUZVERDE'
 
 def conectar_hoja():
     creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
@@ -22,7 +19,6 @@ def conectar_hoja():
     cliente = gspread.authorize(creds)
     hoja = cliente.open(SHEET_NAME)
     return hoja
-
 
 
 # === FUNCIONES DE INVENTARIO ===
@@ -37,85 +33,71 @@ def guardar_inventario(df):
     ws.clear()
     ws.update([df.columns.values.tolist()] + df.values.tolist())
 
-
 def registrar_venta(codigo, descripcion, precio, cantidad):
     hoja = conectar_hoja()
     ventas = hoja.worksheet('Ventas')
     total = float(precio) * int(cantidad)
-    nueva_venta = [
-        str(codigo),
-        str(descripcion),
-        float(precio),
-        int(cantidad),
-        float(total)
-    ]
+    nueva_venta = [str(codigo), str(descripcion), float(precio), int(cantidad), float(total)]
     ventas.append_row(nueva_venta)
 
- 
-# === RUTAS WEB ===
+
+# === RUTA PRINCIPAL ===
 @app.route('/', methods=['GET', 'POST'])
 def buscar_producto():
     resultado = None
     error = None
 
-    # Inicializar carrito si no existe
-  if 'agregar' in request.form:
-    codigo = request.form['codigo']
-    descripcion = request.form['descripcion']
-    precio = float(request.form['precio'])
-    cantidad = int(request.form['cantidad'])
+    if 'carrito' not in session:
+        session['carrito'] = []
 
-    inventario = cargar_inventario()
-    item = inventario[inventario['codigo'].astype(str) == str(codigo)]
+    if request.method == 'POST':
+        if 'agregar' in request.form:
+            # Agregar al carrito
+            codigo = request.form['codigo']
+            descripcion = request.form['descripcion']
+            precio = float(request.form['precio'])
+            cantidad = int(request.form['cantidad'])
 
-    if not item.empty:
-        disponible = int(item.iloc[0]['cantidad'])
+            inventario = cargar_inventario()
+            item = inventario[inventario['codigo'].astype(str) == str(codigo)]
 
-        if cantidad <= disponible:
-            producto = {
-                'codigo': codigo,
-                'descripcion': descripcion,
-                'precio': precio,
-                'cantidad': cantidad
-            }
-            session['carrito'].append(producto)
-            session.modified = True
-            flash(f"✅ {descripcion} agregado al carrito.")
+            if not item.empty:
+                disponible = int(item.iloc[0]['cantidad'])
+                if cantidad <= disponible:
+                    producto = {
+                        'codigo': codigo,
+                        'descripcion': descripcion,
+                        'precio': precio,
+                        'cantidad': cantidad
+                    }
+                    session['carrito'].append(producto)
+                    session.modified = True
+                    flash(f"✅ {descripcion} agregado al carrito.")
+                else:
+                    flash(f"❌ Solo hay {disponible} unidades disponibles de {descripcion}.")
+            else:
+                flash("❌ Producto no encontrado en el inventario.")
+
+            return redirect(url_for('buscar_producto'))
+
         else:
-            flash(f"❌ Solo hay {disponible} unidades disponibles de {descripcion}.")
-    else:
-        flash("❌ Producto no encontrado en el inventario.")
+            # Búsqueda de producto
+            codigo = request.form.get('codigo', '').strip().lower()
+            descripcion = request.form.get('descripcion', '').strip().lower()
+            inventario = cargar_inventario()
 
-    return redirect(url_for('buscar_producto'))
+            if codigo:
+                resultado = inventario[inventario['codigo'].astype(str).str.lower() == codigo]
+            elif descripcion:
+                resultado = inventario[inventario['descripcion'].str.lower().str.contains(descripcion)]
 
-
-        # Si es una búsqueda normal
-        codigo = request.form.get('codigo', '').strip().lower()
-        descripcion = request.form.get('descripcion', '').strip().lower()
-        inventario = cargar_inventario()
-
-        if codigo:
-            resultado = inventario[inventario['codigo'].astype(str).str.lower() == codigo]
-        elif descripcion:
-            resultado = inventario[inventario['descripcion'].str.lower().str.contains(descripcion)]
-
-        if resultado is not None and resultado.empty:
-            error = "Producto no encontrado."
+            if resultado is not None and resultado.empty:
+                error = "Producto no encontrado."
 
     carrito = session.get('carrito', [])
-
-    # ✅ Calcular total correctamente
-    total = 0
-    for item in carrito:
-        try:
-            precio = float(item['precio'])
-            cantidad = int(item['cantidad'])
-            total += precio * cantidad
-        except:
-            continue
+    total = sum(float(i['precio']) * int(i['cantidad']) for i in carrito if 'precio' in i and 'cantidad' in i)
 
     return render_template('buscar.html', productos=resultado, error=error, carrito=carrito, total=total)
-
 
 
 @app.route('/vender', methods=['POST'])
@@ -153,7 +135,7 @@ def vender_producto():
                 flash(f"❌ Producto no encontrado: {descripcion}")
 
         guardar_inventario(inventario)
-        session['carrito'] = []  # Vaciar el carrito
+        session['carrito'] = []
         flash(f"✅ Venta registrada por un total de ${total_final:.2f}")
         return redirect(url_for('buscar_producto'))
 
@@ -178,7 +160,6 @@ def eliminar_item():
         session['carrito'] = carrito
         flash("🗑️ Producto eliminado del carrito.")
     return redirect(url_for('buscar_producto'))
-
 
 
 if __name__ == '__main__':
