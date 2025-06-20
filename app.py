@@ -33,19 +33,19 @@ def guardar_inventario(df):
     ws.clear()
     ws.update([df.columns.values.tolist()] + df.values.tolist())
 
-
 def registrar_venta(codigo, descripcion, precio, cantidad):
     hoja = conectar_hoja()
     ventas = hoja.worksheet('Ventas')
     total = float(precio) * int(cantidad)
 
-    # Zona horaria de Ciudad de México
+    # Hora local de Ciudad de México
     tz_mexico = pytz.timezone('America/Mexico_City')
-    fecha = datetime.now(tz_mexico).strftime('%Y-%m-%d %H:%M:%S')
+    ahora = datetime.now(tz_mexico)
+    fecha = ahora.strftime('%Y-%m-%d')
+    hora = ahora.strftime('%H:%M:%S')
 
-    nueva_venta = [str(codigo), str(descripcion), float(precio), int(cantidad), float(total), fecha]
+    nueva_venta = [str(codigo), str(descripcion), float(precio), int(cantidad), float(total), fecha, hora]
     ventas.append_row(nueva_venta)
-
 
 # === RUTA PRINCIPAL ===
 @app.route('/', methods=['GET', 'POST'])
