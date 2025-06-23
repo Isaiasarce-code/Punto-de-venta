@@ -112,6 +112,15 @@ def buscar_producto():
 
     carrito = session.get('carrito', [])
     total = sum(float(i['precio']) * int(i['cantidad']) for i in carrito if 'precio' in i and 'cantidad' in i)
+    ahorro_total = 0
+    inventario = cargar_inventario()
+    for item in carrito:
+        fila = inventario[inventario['codigo'].astype(str) == item['codigo']]
+        if not fila.empty:
+            normal = float(fila.iloc[0]['precio'])
+            actual = float(item['precio'])
+            ahorro_unitario = max(0, normal - actual)
+            ahorro_total += ahorro_unitario * int(item['cantidad'])
 
     return render_template('buscar.html', productos=resultado, error=error, carrito=carrito, total=total)
 
