@@ -31,14 +31,14 @@
                 <td>${{ "%.2f"|format(subtotal) }}</td>
             </tr>
         {% endfor %}
-             <div class="text-center my-3">
-               <h4>¡GRACIAS POR SU COMPRA!</h4>
-             </div>
+             
         </tbody>
     </table>
     <hr>
     <h5 class="text-end">Total: ${{ "%.2f"|format(total) }}</h5>
-
+        <div class="text-center my-3">
+               <h4>¡GRACIAS POR SU COMPRA!</h4>
+             </div>
     <div class="text-center no-print mt-4">
         <button onclick="window.print()" class="btn btn-primary">🖨️ Imprimir ticket</button>
         <a href="/" class="btn btn-secondary">🔙 Nueva venta</a>
