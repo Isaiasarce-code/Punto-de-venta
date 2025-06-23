@@ -132,6 +132,9 @@ def vender_producto():
                     flash(f"❌ Stock insuficiente para {descripcion}.")
             else:
                 flash(f"❌ Producto no encontrado: {descripcion}")
+                
+        session['ultimo_ticket'] = carrito  # Guardamos el ticket para imprimir
+        return redirect(url_for('mostrar_ticket'))
 
         guardar_inventario(inventario)
         session['carrito'] = []
