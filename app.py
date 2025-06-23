@@ -142,6 +142,19 @@ def vender_producto():
         flash(f"💥 Error inesperado: {e}")
         return redirect(url_for('buscar_producto'))
 
+@app.route('/ticket')
+def mostrar_ticket():
+    carrito = session.get('ultimo_ticket', [])
+    total = sum(float(i['precio']) * int(i['cantidad']) for i in carrito if 'precio' in i and 'cantidad' in i)
+
+    tz_mexico = pytz.timezone('America/Mexico_City')
+    ahora = datetime.now(tz_mexico)
+    fecha = ahora.strftime('%Y-%m-%d')
+    hora = ahora.strftime('%H:%M:%S')
+
+    return render_template('ticket.html', carrito=carrito, total=total, fecha=fecha, hora=hora)
+
+
 @app.route('/vaciar_carrito', methods=['POST'])
 def vaciar_carrito():
     session['carrito'] = []
