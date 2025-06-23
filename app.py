@@ -89,11 +89,23 @@ def buscar_producto():
             codigo = request.form.get('codigo', '').strip().lower()
             descripcion = request.form.get('descripcion', '').strip().lower()
             inventario = cargar_inventario()
-
+                
+            # Detectar día de la semana (lunes = 0, jueves = 3)
+            tz_mexico = pytz.timezone('America/Mexico_City')
+            hoy = datetime.now(tz_mexico).weekday()
+            es_oferta = hoy in [0, 3]  # lunes o jueves
+            
             if codigo:
                 resultado = inventario[inventario['codigo'].astype(str).str.lower() == codigo]
             elif descripcion:
                 resultado = inventario[inventario['descripcion'].str.lower().str.contains(descripcion)]
+            
+            # Si hay resultado y es día de oferta, ajustamos el precio y calculamos ahorro
+            if resultado is not None and not resultado.empty and es_oferta:
+                resultado = resultado.copy()
+                resultado['ahorro'] = resultado['precio'] - resultado['diaoferta']
+                resultado['precio'] = resultado['diaoferta']
+
 
             if resultado is not None and resultado.empty:
                 error = "Producto no encontrado."
