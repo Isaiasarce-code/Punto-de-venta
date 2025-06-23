@@ -168,6 +168,13 @@
                 <h5 class="me-2 mb-0">Total:</h5>
                 <span class="badge bg-success fs-5">${{ "%.2f"|format(total) }}</span>
             </div>
+            {% if ahorro_total and ahorro_total > 0 %}
+            <div class="d-flex justify-content-end align-items-center mt-2">
+                <h6 class="me-2 mb-0 text-success">Ahorro:</h6>
+                <span class="badge bg-success fs-6">${{ "%.2f"|format(ahorro_total) }}</span>
+            </div>
+            {% endif %}
+
 
             <div class="mt-3">
                 <form action="/vender" method="post" class="d-inline">
