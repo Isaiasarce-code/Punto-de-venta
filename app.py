@@ -132,14 +132,13 @@ def vender_producto():
                     flash(f"❌ Stock insuficiente para {descripcion}.")
             else:
                 flash(f"❌ Producto no encontrado: {descripcion}")
-                
-        session['ultimo_ticket'] = carrito  # Guardamos el ticket para imprimir
-        return redirect(url_for('mostrar_ticket'))
 
-        guardar_inventario(inventario)
-        session['carrito'] = []
+        guardar_inventario(inventario)  # 🔁 Asegúrate de guardar antes de salir
+        session['ultimo_ticket'] = carrito  # 🧾 Guardamos para mostrar el ticket
+        session['carrito'] = []  # 🧹 Limpiar carrito
         flash(f"✅ Venta registrada por un total de ${total_final:.2f}")
-        return redirect(url_for('buscar_producto'))
+        
+        return redirect(url_for('mostrar_ticket'))  # ✅ Redirige al ticket
 
     except Exception as e:
         flash(f"💥 Error inesperado: {e}")
