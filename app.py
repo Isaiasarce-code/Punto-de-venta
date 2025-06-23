@@ -121,8 +121,8 @@ def buscar_producto():
             actual = float(item['precio'])
             ahorro_unitario = max(0, normal - actual)
             ahorro_total += ahorro_unitario * int(item['cantidad'])
-
-    return render_template('buscar.html', productos=resultado, error=error, carrito=carrito, total=total)
+            
+    return render_template('buscar.html', productos=resultado, error=error, carrito=carrito, total=total, ahorro_total=ahorro_total)
 
 @app.route('/vender', methods=['POST'])
 def vender_producto():
