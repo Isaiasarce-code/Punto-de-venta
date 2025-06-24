@@ -46,11 +46,19 @@
 
 <div class="container py-4">
 
-<div style="width: 600px; height: 150px; overflow: hidden; margin: auto;">
-  <img src="https://i.postimg.cc/50r3v77Y/IMAGENVD.png" style="width: 100%; object-fit: cover;">
+<div class="container-fluid py-3">
+  <div class="row align-items-center">
+    <!-- Columna de la imagen -->
+    <div class="col-md-6">
+      <img src="https://i.postimg.cc/50r3v77Y/IMAGENVD.png" alt="Logo Farmacia" class="img-fluid" style="max-height: 140px; object-fit: contain;">
+    </div>
+
+    <!-- Columna del título -->
+    <div class="col-md-6 text-md-end text-center">
+      <h1 class="fw-bold text-success mb-0">💊 Punto de Venta Farmacias Cruz Verde 💊</h1>
+    </div>
+  </div>
 </div>
-    
-    <h1 class="mb-4 text-center">💊 Punto de Venta Farmacias Cruz Verde 💊</h1>
 
     {% with messages = get_flashed_messages() %}
     {% if messages %}
